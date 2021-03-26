@@ -46,8 +46,14 @@ namespace DogGo.Repositories
                             Name = reader.GetString(reader.GetOrdinal("Name")),
                             OwnerId = reader.GetInt32(reader.GetOrdinal("OwnerId")),
                             Breed = reader.GetString(reader.GetOrdinal("Breed")),
-                            Notes = reader.GetString(reader.GetOrdinal("Notes")),
-                            ImageUrl = reader.GetString(reader.GetOrdinal("ImageUrl"))
+                            // Dealing with null values in the database by using the IsDBNull method
+                            Notes = reader.IsDBNull(reader.GetOrdinal("Notes"))
+                                // Can use "N/A" because the type of Notes is string, can use other types or null to just leave it blank
+                                ? "N/A"
+                                : reader.GetString(reader.GetOrdinal("Notes")),
+                            ImageUrl = reader.IsDBNull(reader.GetOrdinal("ImageUrl"))
+                                ? "N/A"
+                                : reader.GetString(reader.GetOrdinal("ImageUrl"))
                         };
 
                         dogs.Add(dog);
@@ -86,8 +92,12 @@ namespace DogGo.Repositories
                             Name = reader.GetString(reader.GetOrdinal("Name")),
                             OwnerId = reader.GetInt32(reader.GetOrdinal("OwnerId")),
                             Breed = reader.GetString(reader.GetOrdinal("Breed")),
-                            Notes = reader.GetString(reader.GetOrdinal("Notes")),
-                            ImageUrl = reader.GetString(reader.GetOrdinal("ImageUrl"))
+                            Notes = reader.IsDBNull(reader.GetOrdinal("Notes"))
+                                ? "N/A"
+                                : reader.GetString(reader.GetOrdinal("Notes")),
+                            ImageUrl = reader.IsDBNull(reader.GetOrdinal("ImageUrl"))
+                                ? "N/A"
+                                : reader.GetString(reader.GetOrdinal("ImageUrl"))
                         };
 
                         reader.Close();
