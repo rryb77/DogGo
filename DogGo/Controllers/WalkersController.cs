@@ -14,12 +14,14 @@ namespace DogGo.Controllers
     {
         private readonly IWalkerRepository _walkerRepo;
         private readonly IWalkRepository _walkRepo;
+        private readonly IDogRepository _dogRepo;
 
         // ASP.NET will give us an instance of our Walker Repository. This is called "Dependency Injection"
-        public WalkersController(IWalkerRepository walkerRepository, IWalkRepository walkRepository)
+        public WalkersController(IWalkerRepository walkerRepository, IWalkRepository walkRepository, IDogRepository dogRepository)
         {
             _walkerRepo = walkerRepository;
             _walkRepo = walkRepository;
+            _dogRepo = dogRepository;
         }
 
         // GET: WalkersController
@@ -50,10 +52,56 @@ namespace DogGo.Controllers
             return View(vm);
         }
 
+        // GET WalkersController/CreateWalk
+        public ActionResult CreateWalk()
+        {
+            List<Walker> walkers = _walkerRepo.GetAllWalkers();
+            List<Dog> dogs = _dogRepo.GetAllDogs();
+
+            WalkFormViewModel vm = new WalkFormViewModel()
+            {
+                Walk = new Walk(),
+                Walks = new List<Walk>(),
+                Walkers = walkers,
+                Dogs = dogs,
+            };
+
+            return View(vm);
+        }
+
+        // POST: WalkersController/CreateWalk
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CreateWalk(WalkFormViewModel walkFormViewModel)
+        {
+            try
+            {
+                foreach(int dogId in walkFormViewModel.DogIds)
+                {
+                    Walk walk = new Walk()
+                    {
+                        Date = walkFormViewModel.Walk.Date,
+                        Duration = walkFormViewModel.Walk.Duration,
+                        WalkerId = walkFormViewModel.Walk.WalkerId,
+                        DogId = dogId
+                    };
+
+                    _walkRepo.AddWalk(walk);
+                }
+
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View(walkFormViewModel);
+            }
+        }
+
         // GET: WalkersController/Create
         public ActionResult Create()
         {
-            return View();
+            
+           return View();
         }
 
         // POST: WalkersController/Create

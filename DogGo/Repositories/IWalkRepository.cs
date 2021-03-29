@@ -9,5 +9,6 @@ namespace DogGo.Repositories
     public interface IWalkRepository
     {
         public List<Walk> GetWalksByWalkerId(int walkerId);
+        public void AddWalk(Walk walk);
     }
 }
