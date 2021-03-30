@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,6 +14,8 @@ namespace DogGo.Models
         public string Breed { get; set; }
         public Owner Owner { get; set; }
         public string Notes { get; set; }
+
+        [DisplayName("Image URL")]
         public string ImageUrl { get; set; }
     }
 }
