@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Security.Claims;
 
 namespace DogGo.Controllers
 {
@@ -15,18 +16,33 @@ namespace DogGo.Controllers
         private readonly IWalkerRepository _walkerRepo;
         private readonly IWalkRepository _walkRepo;
         private readonly IDogRepository _dogRepo;
+        private readonly IOwnerRepository _ownerRepo;
 
         // ASP.NET will give us an instance of our Walker Repository. This is called "Dependency Injection"
-        public WalkersController(IWalkerRepository walkerRepository, IWalkRepository walkRepository, IDogRepository dogRepository)
+        public WalkersController(IWalkerRepository walkerRepository,
+                                IWalkRepository walkRepository,
+                                IDogRepository dogRepository,
+                                IOwnerRepository ownerRepository)
         {
             _walkerRepo = walkerRepository;
             _walkRepo = walkRepository;
             _dogRepo = dogRepository;
+            _ownerRepo = ownerRepository;
         }
 
         // GET: WalkersController
         public ActionResult Index()
         {
+            int ownerId = GetCurrentUserId();
+            
+            if(ownerId != 0)
+            {
+                Owner owner = _ownerRepo.GetOwnerById(ownerId);
+                List<Walker> walkersByNeighborhood = _walkerRepo.GetWalkersInNeighborhood(owner.NeighborhoodId);
+
+                return View(walkersByNeighborhood);
+            }
+
             List<Walker> walkers = _walkerRepo.GetAllWalkers();
 
             return View(walkers);
@@ -41,7 +57,7 @@ namespace DogGo.Controllers
             WalkerProfileViewModel vm = new WalkerProfileViewModel()
             {
                 Walker = walker,
-                Walks = walks                
+                Walks = walks
             };
 
             if (vm == null)
@@ -76,7 +92,7 @@ namespace DogGo.Controllers
         {
             try
             {
-                foreach(int dogId in walkFormViewModel.DogIds)
+                foreach (int dogId in walkFormViewModel.DogIds)
                 {
                     Walk walk = new Walk()
                     {
@@ -100,8 +116,8 @@ namespace DogGo.Controllers
         // GET: WalkersController/Create
         public ActionResult Create()
         {
-            
-           return View();
+
+            return View();
         }
 
         // POST: WalkersController/Create
@@ -159,6 +175,21 @@ namespace DogGo.Controllers
             {
                 return View();
             }
+        }
+
+        private int GetCurrentUserId()
+        {
+            string id = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(id))
+            {
+                return 0;
+            }
+            else
+            {
+                return int.Parse(id);
+            }
+
         }
     }
 }
