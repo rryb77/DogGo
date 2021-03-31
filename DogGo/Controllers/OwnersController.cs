@@ -39,6 +39,24 @@ namespace DogGo.Controllers
             return View(owners);
         }
 
+        // GET: Owners/Profile
+        public ActionResult Profile()
+        {
+            int id = GetCurrentUserId();
+            Owner owner = _ownerRepo.GetOwnerById(id);
+            List<Dog> dogs = _dogRepo.GetDogsByOwnerId(id);
+            List<Walker> walkers = _walkerRepo.GetWalkersInNeighborhood(owner.NeighborhoodId);
+
+            ProfileViewModel vm = new ProfileViewModel()
+            {
+                Owner = owner,
+                Dogs = dogs,
+                Walkers = walkers
+            };
+
+            return View(vm);
+        }
+
         // GET: OwnersController/Details/5
         public ActionResult Details(int id)
         {
@@ -175,6 +193,12 @@ namespace DogGo.Controllers
                 new ClaimsPrincipal(claimsIdentity));
 
             return RedirectToAction("Index", "Dogs");
+        }
+
+        private int GetCurrentUserId()
+        {
+            string id = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return int.Parse(id);
         }
 
         public async Task<ActionResult> Logout()
