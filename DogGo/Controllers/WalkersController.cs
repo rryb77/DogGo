@@ -77,7 +77,11 @@ namespace DogGo.Controllers
 
             WalkFormViewModel vm = new WalkFormViewModel()
             {
-                Walk = new Walk(),
+                Walk = new Walk() 
+                {
+                    WalkerId = walker.Id,
+                    Duration = 0
+                },
                 Walks = new List<Walk>(),
                 Walker = walker,
                 Dogs = dogs,
